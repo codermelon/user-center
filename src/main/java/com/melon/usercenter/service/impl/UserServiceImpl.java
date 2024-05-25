@@ -16,6 +16,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.melon.usercenter.constant.UserConstant.USER_LOGIN_STATE;
+
 /**
 * @author panjie
 * @description 针对表【user】的数据库操作Service实现
@@ -31,7 +33,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     // 混淆密码
     private static final String SALT = "melon";
-    public static final String USER_LOGIN_STATE="userLoginState";
+
 
     @Override
     public long userRegister(String userAccount, String userPassword, String checkPassword) {
@@ -80,7 +82,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     @Override
-    public User doLogin(String userAccount, String userPassword, HttpServletRequest request) {
+    public User userLogin(String userAccount, String userPassword, HttpServletRequest request) {
         // 非空
         if(StringUtils.isAnyBlank(userAccount,userPassword)){
             return null;
@@ -115,21 +117,32 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
 
         // 3.用户信息脱敏，隐藏敏感信息，防止数据库中的字段泄露
-        User newUser = new User();
-        newUser.setId(user.getId());
-        newUser.setUsername(user.getUsername());
-        newUser.setUserAccount(user.getUserAccount());
-        newUser.setAvatarUrl(user.getAvatarUrl());
-        newUser.setGender(user.getGender());
-        newUser.setPhone(user.getPhone());
-        newUser.setEmail(user.getEmail());
-        newUser.setUserStatus(user.getUserStatus());
-        newUser.setCreateTime(user.getCreateTime());
-
+        User newUser = getSafetyUser(user);
         // 4.记录用户的登录态（session），将其存到服务器上
         request.getSession().setAttribute(USER_LOGIN_STATE, newUser);
 
         // 5.返回脱敏后的用户信息
+        return newUser;
+    }
+
+    /**
+     * 用户脱敏
+     * @param orginuser
+     * @return
+     */
+    @Override
+    public User getSafetyUser(User orginuser){
+        User newUser = new User();
+        newUser.setId(orginuser.getId());
+        newUser.setUsername(orginuser.getUsername());
+        newUser.setUserAccount(orginuser.getUserAccount());
+        newUser.setAvatarUrl(orginuser.getAvatarUrl());
+        newUser.setGender(orginuser.getGender());
+        newUser.setPhone(orginuser.getPhone());
+        newUser.setEmail(orginuser.getEmail());
+        newUser.setUserRole(orginuser.getUserRole());
+        newUser.setUserStatus(orginuser.getUserStatus());
+        newUser.setCreateTime(orginuser.getCreateTime());
         return newUser;
     }
 }

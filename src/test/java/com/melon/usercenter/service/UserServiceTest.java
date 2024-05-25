@@ -36,7 +36,7 @@ class UserServiceTest {
 
     @Test
     void userRegister() {
-        String userAccount="melon";
+        String userAccount="jaymelon";
         String userPassword="12345678";
         String checkPassword="12345678";
         long register = userService.userRegister(userAccount, userPassword, checkPassword);

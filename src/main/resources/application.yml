@@ -6,7 +6,9 @@ spring:
     url: jdbc:mysql://localhost:3306/usercenter
     username: root
     password: pj123456
-
+  # session失效时间
+  session:
+    timeout: 86400
 # mybatis-plus的配置
 mybatis-plus:
   configuration:
